@@ -50,20 +50,20 @@ function LoginScreen({ onLogin }) {
   }
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(145deg, #0c1220 0%, #1a1f35 50%, #0f1628 100%)", fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{\`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
         @keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-8px); } 40%,80% { transform: translateX(8px); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); transition: all 0.15s; }
         .pin-dot-filled { background: #4f8cff; border-color: #4f8cff; box-shadow: 0 0 8px rgba(79,140,255,0.4); }
         .num-btn { width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #e0e4ef; font-size: 22px; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; }
-        .num-btn:hover { background: rgba(79,140,255,0.15); } .num-btn:active { transform: scale(0.93); }\`}</style>
+        .num-btn:hover { background: rgba(79,140,255,0.15); } .num-btn:active { transform: scale(0.93); }`}</style>
       <div style={{ animation: shake ? "shake 0.4s" : "fadeIn 0.5s ease-out", textAlign: "center", padding: 40 }}>
         <img src={LOGO_SRC} alt="GMCFI" style={{ width: 72, height: 72, borderRadius: "50%", marginBottom: 16, boxShadow: "0 4px 24px rgba(107,39,55,0.5)" }} />
         <h1 style={{ fontSize: 22, fontWeight: 700, color: "#f0f2fa", marginBottom: 4 }}>GMCFI Kassakirja</h1>
         <p style={{ fontSize: 13, color: "#6b7394", marginBottom: 28 }}>Sy\u00f6t\u00e4 PIN-koodi kirjautuaksesi</p>
         <form onSubmit={handleSubmit}>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 24 }}>
-            {[0,1,2,3].map(i => (<div key={i} className={\`pin-dot \${i < pin.length ? "pin-dot-filled" : ""}\`} />))}
+            {[0,1,2,3].map(i => (<div key={i} className={`pin-dot ${i < pin.length ? "pin-dot-filled" : ""}`} />))}
           </div>
           {error && <div style={{ color: "#ff6b6b", fontSize: 13, marginBottom: 16 }}>{error}</div>}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 64px)", gap: 12, justifyContent: "center", marginBottom: 12 }}>
@@ -97,8 +97,8 @@ export default function KassakirjaApp() {
   function handleLogin(user) { setCurrentUser(user); localStorage.setItem("kassakirja2-session", JSON.stringify(user)); }
   function handleLogout() { setCurrentUser(null); localStorage.removeItem("kassakirja2-session"); setShowUserMenu(false); }
 
-  const firebasePath = \`\${FIREBASE_DB}/kassakirja2/data/\${year}.json\`;
-  const balancePath = \`\${FIREBASE_DB}/kassakirja2/settings/\${year}/openingBalance.json\`;
+  const firebasePath = `${FIREBASE_DB}/kassakirja2/data/${year}.json`;
+  const balancePath = `${FIREBASE_DB}/kassakirja2/settings/${year}/openingBalance.json`;
 
   useEffect(() => { (async () => { try { const r = await fetch(balancePath); const v = await r.json(); if (v !== null && typeof v === "number") setOpeningBalance(v); } catch(e) {} })(); }, [year, balancePath]);
 
@@ -157,19 +157,19 @@ export default function KassakirjaApp() {
     let runBal = openingBalance;
     const allRows = [];
     for (let m = 0; m < 12; m++) { (transactions[m] || []).forEach(r => allRows.push(r)); }
-    const html = \`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kassakirja \${year}</title>
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kassakirja ${year}</title>
     <style>@page{size:A4 landscape;margin:12mm 15mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Calibri,Arial,sans-serif;font-size:10pt;color:#222}
     .header{text-align:center;margin-bottom:8px}.header h1{font-size:14pt;margin-bottom:2px}.header .sub{font-size:11pt;color:#555}
     table{width:100%;border-collapse:collapse;font-size:9pt}th{background:#6B2737;color:#fff;padding:5px 8px;text-align:left;font-weight:600;border:1px solid #5a1f2e}th.right{text-align:right}
     td{padding:4px 8px;border:1px solid #d4d4d4}td.right{text-align:right}tr:nth-child(even) td{background:#faf8f8}tr.total td{font-weight:700;border-top:2px solid #6B2737;background:#fff!important}
     .sig-area{margin-top:50px;display:flex;gap:80px}.sig-line{flex:1;border-top:1px solid #333;padding-top:4px;font-size:9pt;color:#555}
     @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>
-    <div class="header"><h1>Grace Montagnard Alliance Church Finland</h1><div class="sub">Kassakirja Tammikuu \u2013 Joulukuu \${year}</div></div>
+    <div class="header"><h1>Grace Montagnard Alliance Church Finland</h1><div class="sub">Kassakirja Tammikuu \u2013 Joulukuu ${year}</div></div>
     <table><thead><tr><th style="width:90px">kk.pp.vv</th><th>Selite</th><th style="width:50px">Tos</th><th class="right" style="width:90px">Tulot</th><th class="right" style="width:90px">Menot</th><th class="right" style="width:100px">Saldot</th><th style="width:100px">Tilihoitaja</th><th style="width:100px">Puheenjohtaja</th></tr></thead>
-    <tbody><tr><td></td><td>Siirtoo kasalta \${year-1} vuodelta</td><td></td><td class="right">\${eurA(openingBalance)}</td><td class="right">-</td><td class="right">\${eurA(openingBalance)}</td><td></td><td></td></tr>
-    \${allRows.map(r => { runBal += (parseFloat(r.income)||0) - (parseFloat(r.expense)||0); return \`<tr><td>\${r.date ? r.date.split("-").reverse().join(".") : ""}</td><td>\${r.description||""}</td><td>\${r.receipt||""}</td><td class="right">\${eur(parseFloat(r.income)||0)}</td><td class="right">\${eur(parseFloat(r.expense)||0)}</td><td class="right">\${eurA(runBal)}</td><td></td><td></td></tr>\`; }).join("")}
-    <tr class="total"><td></td><td>Yhteens\u00e4</td><td></td><td class="right">\${eurA(totalIncome)}</td><td class="right">\${eurA(totalExpense)}</td><td class="right">\${eurA(currentBalance)}</td><td></td><td></td></tr>
-    </tbody></table><div class="sig-area"><div class="sig-line">P\u00e4iv\u00e4m\u00e4\u00e4r\u00e4 ja paikka</div><div class="sig-line">Rahastonhoitaja</div><div class="sig-line">Puheenjohtaja</div></div></body></html>\`;
+    <tbody><tr><td></td><td>Siirtoo kasalta ${year-1} vuodelta</td><td></td><td class="right">${eurA(openingBalance)}</td><td class="right">-</td><td class="right">${eurA(openingBalance)}</td><td></td><td></td></tr>
+    ${allRows.map(r => { runBal += (parseFloat(r.income)||0) - (parseFloat(r.expense)||0); return `<tr><td>${r.date ? r.date.split("-").reverse().join(".") : ""}</td><td>${r.description||""}</td><td>${r.receipt||""}</td><td class="right">${eur(parseFloat(r.income)||0)}</td><td class="right">${eur(parseFloat(r.expense)||0)}</td><td class="right">${eurA(runBal)}</td><td></td><td></td></tr>`; }).join("")}
+    <tr class="total"><td></td><td>Yhteens\u00e4</td><td></td><td class="right">${eurA(totalIncome)}</td><td class="right">${eurA(totalExpense)}</td><td class="right">${eurA(currentBalance)}</td><td></td><td></td></tr>
+    </tbody></table><div class="sig-area"><div class="sig-line">P\u00e4iv\u00e4m\u00e4\u00e4r\u00e4 ja paikka</div><div class="sig-line">Rahastonhoitaja</div><div class="sig-line">Puheenjohtaja</div></div></body></html>`;
     const win = window.open("", "_blank"); if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 400); }
   }
 
@@ -179,7 +179,7 @@ export default function KassakirjaApp() {
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: "linear-gradient(145deg, #0c1220 0%, #1a1f35 50%, #0f1628 100%)", color: "#e0e4ef", minHeight: "100vh" }}>
-      <style>{\`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}input,select{font-family:'DM Sans',sans-serif}
         @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         @keyframes slideDown{from{opacity:0;max-height:0}to{opacity:1;max-height:400px}}
@@ -197,7 +197,7 @@ export default function KassakirjaApp() {
         .mono{font-family:'DM Mono',monospace;font-size:13px}
         .tab-btn{padding:6px 14px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;background:transparent;color:#6b7394}
         .tab-btn:hover{background:rgba(255,255,255,.06);color:#aab4d0}
-        .tab-btn.active{background:linear-gradient(135deg,#4f8cff,#3366dd);color:white;box-shadow:0 2px 8px rgba(79,140,255,.3)}\`}</style>
+        .tab-btn.active{background:linear-gradient(135deg,#4f8cff,#3366dd);color:white;box-shadow:0 2px 8px rgba(79,140,255,.3)}`}</style>
 
       {saved && <div className="saved-badge"><IconSave /> Tallennettu</div>}
 
@@ -220,8 +220,8 @@ export default function KassakirjaApp() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <button className={\`btn \${view === "summary" ? "btn-primary" : "btn-ghost"}\`} onClick={() => setView("summary")}>Yhteenveto</button>
-            <button className={\`btn \${view === "month" ? "btn-primary" : "btn-ghost"}\`} onClick={() => setView("month")}>Kuukausi</button>
+            <button className={`btn ${view === "summary" ? "btn-primary" : "btn-ghost"}`} onClick={() => setView("summary")}>Yhteenveto</button>
+            <button className={`btn ${view === "month" ? "btn-primary" : "btn-ghost"}`} onClick={() => setView("month")}>Kuukausi</button>
             <button className="btn btn-ghost" onClick={handlePrint}><IconPrint /> PDF</button>
             <div style={{ position: "relative" }}>
               <button className="btn btn-ghost" onClick={() => setShowUserMenu(!showUserMenu)} style={{ gap: 5, padding: "8px 12px" }}>
@@ -328,7 +328,7 @@ export default function KassakirjaApp() {
             {/* Month tabs */}
             <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
               {MONTHS_SHORT.map((m, i) => (
-                <button key={i} className={\`tab-btn \${activeMonth === i ? "active" : ""}\`} onClick={() => { setActiveMonth(i); setEditingId(null); setShowAddForm(false); }}>
+                <button key={i} className={`tab-btn ${activeMonth === i ? "active" : ""}`} onClick={() => { setActiveMonth(i); setEditingId(null); setShowAddForm(false); }}>
                   {m} {(transactions[i] || []).length > 0 && <span style={{ fontSize: 10, opacity: 0.7 }}>({(transactions[i] || []).length})</span>}
                 </button>
               ))}
