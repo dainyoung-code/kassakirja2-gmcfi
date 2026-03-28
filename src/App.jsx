@@ -159,12 +159,12 @@ export default function KassakirjaApp() {
     for (let m = 0; m < 12; m++) { (transactions[m] || []).forEach(r => allRows.push(r)); }
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kassakirja ${year}</title>
     <style>@page{size:A4 landscape;margin:12mm 15mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Calibri,Arial,sans-serif;font-size:10pt;color:#222}
-    .header{text-align:center;margin-bottom:8px}.header h1{font-size:14pt;margin-bottom:2px}.header .sub{font-size:11pt;color:#555}
+    .header{text-align:center;margin-bottom:8px}.header h1{font-size:14pt;margin-bottom:2px}.header .sub{font-size:11pt;color:#555}.header img{width:60px;height:60px;border-radius:50%;margin-bottom:6px}
     table{width:100%;border-collapse:collapse;font-size:9pt}th{background:#6B2737;color:#fff;padding:5px 8px;text-align:left;font-weight:600;border:1px solid #5a1f2e}th.right{text-align:right}
     td{padding:4px 8px;border:1px solid #d4d4d4}td.right{text-align:right}tr:nth-child(even) td{background:#faf8f8}tr.total td{font-weight:700;border-top:2px solid #6B2737;background:#fff!important}
     .sig-area{margin-top:50px;display:flex;gap:80px}.sig-line{flex:1;border-top:1px solid #333;padding-top:4px;font-size:9pt;color:#555}
     @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>
-    <div class="header"><h1>Grace Montagnard Alliance Church Finland</h1><div class="sub">Kassakirja Tammikuu – Joulukuu ${year}</div></div>
+    <div class="header"><img src="${LOGO_SRC}" alt="GMCFI" /><h1>Grace Montagnard Alliance Church Finland</h1><div class="sub">Kassakirja Tammikuu – Joulukuu ${year}</div></div>
     <table><thead><tr><th style="width:90px">kk.pp.vv</th><th>Selite</th><th style="width:50px">Tos</th><th class="right" style="width:90px">Tulot</th><th class="right" style="width:90px">Menot</th><th class="right" style="width:100px">Saldot</th><th style="width:100px">Tilihoitaja</th><th style="width:100px">Puheenjohtaja</th></tr></thead>
     <tbody><tr><td></td><td>Siirtoo kasalta ${year-1} vuodelta</td><td></td><td class="right">${eurA(openingBalance)}</td><td class="right">-</td><td class="right">${eurA(openingBalance)}</td><td></td><td></td></tr>
     ${allRows.map(r => { runBal += (parseFloat(r.income)||0) - (parseFloat(r.expense)||0); return `<tr><td>${r.date ? r.date.split("-").reverse().join(".") : ""}</td><td>${r.description||""}</td><td>${r.receipt||""}</td><td class="right">${eur(parseFloat(r.income)||0)}</td><td class="right">${eur(parseFloat(r.expense)||0)}</td><td class="right">${eurA(runBal)}</td><td></td><td></td></tr>`; }).join("")}
