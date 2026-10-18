@@ -229,6 +229,26 @@ export default function KassakirjaApp() {
     }
   }
 
+  function handleEmailPdf() {
+    handleDownloadPdf();
+    const eurA = (v) => "€ " + v.toLocaleString("fi-FI", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const subject = encodeURIComponent(`GMCFI Kassakirja ${year}`);
+    const body = encodeURIComponent(`Hei,\n\nLiitteenä GMCFI Kassakirja ${year}.\n\nTulot: ${eurA(totalIncome)}\nMenot: ${eurA(totalExpense)}\nSaldo: ${eurA(currentBalance)}\n\nYstävällisin terveisin`);
+    setTimeout(() => { window.location.href = `mailto:?subject=${subject}&body=${body}`; }, 500);
+  }
+
+  function handleEmailMonth(monthIndex) {
+    handleDownloadMonth(monthIndex);
+    const eurA = (v) => "€ " + v.toLocaleString("fi-FI", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const mSummary = monthlySummary[monthIndex];
+    const mRows = transactions[monthIndex] || [];
+    const mIncome = mRows.reduce((s, r) => s + (parseFloat(r.income) || 0), 0);
+    const mExpense = mRows.reduce((s, r) => s + (parseFloat(r.expense) || 0), 0);
+    const subject = encodeURIComponent(`GMCFI Kassakirja ${MONTHS[monthIndex]} ${year}`);
+    const body = encodeURIComponent(`Hei,\n\nLiitteenä GMCFI Kassakirja ${MONTHS[monthIndex]} ${year}.\n\nTulot: ${eurA(mIncome)}\nMenot: ${eurA(mExpense)}\nSaldo: ${eurA(mSummary.closing)}\n\nYstävällisin terveisin`);
+    setTimeout(() => { window.location.href = `mailto:?subject=${subject}&body=${body}`; }, 500);
+  }
+
   function buildMonthPdfHtml(monthIndex) {
     const eur = (v) => v === 0 ? "-" : "€ " + v.toLocaleString("fi-FI", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const eurA = (v) => "€ " + v.toLocaleString("fi-FI", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -349,6 +369,10 @@ export default function KassakirjaApp() {
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 8v5a1 1 0 001 1h6a1 1 0 001-1V8"/><path d="M8 1v8"/><path d="M5 4l3-3 3 3"/></svg>
                      Jaa PDF eteenpäin
                   </button>
+                  <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginTop: 2 }} onClick={() => { setShowPdfMenu(false); handleEmailPdf(); }}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M2 4l6 5 6-5"/></svg>
+                     Lähetä sähköpostiin
+                  </button>
                   <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "6px 0", paddingTop: 6 }}>
                     <div style={{ fontSize: 10, color: "#6b7394", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "2px 12px 6px" }}>Kuukauden PDF</div>
                     <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6 }} onClick={() => { setShowPdfMenu(false); handlePrintMonth(activeMonth); }}>
@@ -361,6 +385,10 @@ export default function KassakirjaApp() {
                     <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginTop: 2 }} onClick={() => { setShowPdfMenu(false); handleShareMonth(activeMonth); }}>
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 8v5a1 1 0 001 1h6a1 1 0 001-1V8"/><path d="M8 1v8"/><path d="M5 4l3-3 3 3"/></svg>
                        Jaa – {MONTHS[activeMonth]}
+                    </button>
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginTop: 2 }} onClick={() => { setShowPdfMenu(false); handleEmailMonth(activeMonth); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M2 4l6 5 6-5"/></svg>
+                       Sähköposti – {MONTHS[activeMonth]}
                     </button>
                   </div>
                 </div>
