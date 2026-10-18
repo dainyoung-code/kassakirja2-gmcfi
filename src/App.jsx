@@ -4,7 +4,7 @@ const FIREBASE_DB = "https://gmcfi-kassakirja-default-rtdb.europe-west1.firebase
 const DEFAULT_OPENING_BALANCE = 40;
 const MONTHS = ["Tammikuu","Helmikuu","Maaliskuu","Huhtikuu","Toukokuu","Kesäkuu","Heinäkuu","Elokuu","Syyskuu","Lokakuu","Marraskuu","Joulukuu"];
 const MONTHS_SHORT = ["Tam","Hel","Maa","Huh","Tou","Kes","Hei","Elo","Syy","Lok","Mar","Jou"];
-const DESCRIPTION_OPTIONS = ["Kolehti ja lahjoitus", "Vuokra", "Sähkölasku", "Vakuutus", "Tarvikkeet", "Muu"];
+const DESCRIPTION_OPTIONS = ["Kolehti ja lahjoitus", "Tilitys", "Vuokra", "Sähkölasku", "Vakuutus", "Tarvikkeet", "Muu"];
 
 const INITIAL_DATA = {
   0: [
