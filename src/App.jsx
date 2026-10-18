@@ -4,6 +4,7 @@ const FIREBASE_DB = "https://gmcfi-kassakirja-default-rtdb.europe-west1.firebase
 const DEFAULT_OPENING_BALANCE = 40;
 const MONTHS = ["Tammikuu","Helmikuu","Maaliskuu","Huhtikuu","Toukokuu","Kesäkuu","Heinäkuu","Elokuu","Syyskuu","Lokakuu","Marraskuu","Joulukuu"];
 const MONTHS_SHORT = ["Tam","Hel","Maa","Huh","Tou","Kes","Hei","Elo","Syy","Lok","Mar","Jou"];
+const DESCRIPTION_OPTIONS = ["Kolehti ja lahjoitus", "Vuokra", "Sähkölasku", "Vakuutus", "Tarvikkeet", "Muu"];
 
 const INITIAL_DATA = {
   0: [
@@ -489,7 +490,15 @@ export default function KassakirjaApp() {
                 <div style={{ padding: "16px 20px", background: "rgba(139,34,82,0.06)", borderBottom: "1px solid rgba(79,140,255,0.1)", animation: "slideDown 0.3s ease" }}>
                   <div style={{ display: "grid", gridTemplateColumns: "130px 1fr 70px 120px 120px", gap: 8, alignItems: "end" }}>
                     <div><label style={{ fontSize: 10, color: "#6b7394", display: "block", marginBottom: 3 }}>PÄIVÄMÄÄRÄ</label><input type="date" className="input-field" value={newRow.date} onChange={e => setNewRow({ ...newRow, date: e.target.value })} /></div>
-                    <div><label style={{ fontSize: 10, color: "#6b7394", display: "block", marginBottom: 3 }}>SELITE</label><input className="input-field" value={newRow.description} onChange={e => setNewRow({ ...newRow, description: e.target.value })} /></div>
+                    <div><label style={{ fontSize: 10, color: "#6b7394", display: "block", marginBottom: 3 }}>SELITE</label>
+                      <div style={{ display: "flex", gap: 4 }}>
+                        <select className="input-field" style={{ width: "auto", minWidth: 60, flex: "0 0 auto" }} value={DESCRIPTION_OPTIONS.includes(newRow.description) ? newRow.description : "__custom"} onChange={e => { if (e.target.value !== "__custom") setNewRow({ ...newRow, description: e.target.value }); else setNewRow({ ...newRow, description: "" }); }}>
+                          {DESCRIPTION_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                          <option value="__custom">Muu...</option>
+                        </select>
+                        {!DESCRIPTION_OPTIONS.includes(newRow.description) && <input className="input-field" placeholder="Kirjoita selite" value={newRow.description} onChange={e => setNewRow({ ...newRow, description: e.target.value })} />}
+                      </div>
+                    </div>
                     <div><label style={{ fontSize: 10, color: "#6b7394", display: "block", marginBottom: 3 }}>TOS</label><input type="number" className="input-field" value={newRow.receipt} onChange={e => setNewRow({ ...newRow, receipt: e.target.value })} /></div>
                     <div><label style={{ fontSize: 10, color: "#6b7394", display: "block", marginBottom: 3 }}>TULO</label><input type="number" step="0.01" className="input-field" value={newRow.income} onChange={e => setNewRow({ ...newRow, income: e.target.value })} /></div>
                     <div><label style={{ fontSize: 10, color: "#6b7394", display: "block", marginBottom: 3 }}>MENO</label><input type="number" step="0.01" className="input-field" value={newRow.expense} onChange={e => setNewRow({ ...newRow, expense: e.target.value })} /></div>
