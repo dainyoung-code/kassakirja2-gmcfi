@@ -228,6 +228,61 @@ export default function KassakirjaApp() {
     }
   }
 
+  function buildMonthPdfHtml(monthIndex) {
+    const eur = (v) => v === 0 ? "-" : "€ " + v.toLocaleString("fi-FI", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const eurA = (v) => "€ " + v.toLocaleString("fi-FI", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const mRows = transactions[monthIndex] || [];
+    const mSummary = monthlySummary[monthIndex];
+    let runBal = mSummary.opening;
+    const mIncome = mRows.reduce((s, r) => s + (parseFloat(r.income) || 0), 0);
+    const mExpense = mRows.reduce((s, r) => s + (parseFloat(r.expense) || 0), 0);
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kassakirja ${MONTHS[monthIndex]} ${year}</title>
+    <style>@page{size:A4 landscape;margin:12mm 15mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Calibri,Arial,sans-serif;font-size:10pt;color:#222}
+    .header{text-align:center;margin-bottom:8px}.header h1{font-size:14pt;margin-bottom:2px}.header .sub{font-size:11pt;color:#555}.header .addr{font-size:9pt;color:#555;margin-bottom:2px}.header img{width:60px;height:60px;border-radius:50%;margin-bottom:6px}
+    table{width:100%;border-collapse:collapse;font-size:9pt}th{background:#6B2737;color:#fff;padding:5px 8px;text-align:left;font-weight:600;border:1px solid #5a1f2e}th.right{text-align:right}
+    td{padding:4px 8px;border:1px solid #d4d4d4}td.right{text-align:right}tr:nth-child(even) td{background:#faf8f8}tr.total td{font-weight:700;border-top:2px solid #6B2737;background:#fff!important}
+    .sig-area{margin-top:50px;display:flex;gap:80px}.sig-line{flex:1;border-top:1px solid #333;padding-top:4px;font-size:9pt;color:#555}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>
+    <div class="header"><img src="${LOGO_SRC}" alt="GMCFI" /><h1>Grace Montagnard Alliance Church Finland</h1><div class="addr">Kulmakatu 8, 92100 Raahe</div><div class="sub">Kassakirja ${MONTHS[monthIndex]} ${year}</div></div>
+    <table><thead><tr><th style="width:90px">kk.pp.vv</th><th>Selite</th><th style="width:50px">Tos</th><th class="right" style="width:90px">Tulot</th><th class="right" style="width:90px">Menot</th><th class="right" style="width:100px">Saldot</th><th style="width:100px">Tilihoitaja</th><th style="width:100px">Puheenjohtaja</th></tr></thead>
+    <tbody><tr><td></td><td>Alkusaldo ${MONTHS[monthIndex]}</td><td></td><td class="right">${eurA(mSummary.opening)}</td><td class="right">-</td><td class="right">${eurA(mSummary.opening)}</td><td></td><td></td></tr>
+    ${mRows.map(r => { runBal += (parseFloat(r.income)||0) - (parseFloat(r.expense)||0); return `<tr><td>${r.date ? r.date.split("-").reverse().join(".") : ""}</td><td>${r.description||""}</td><td>${r.receipt||""}</td><td class="right">${eur(parseFloat(r.income)||0)}</td><td class="right">${eur(parseFloat(r.expense)||0)}</td><td class="right">${eurA(runBal)}</td><td></td><td></td></tr>`; }).join("")}
+    <tr class="total"><td></td><td>Yhteensä</td><td></td><td class="right">${eurA(mIncome)}</td><td class="right">${eurA(mExpense)}</td><td class="right">${eurA(mSummary.closing)}</td><td></td><td></td></tr>
+    </tbody></table><div class="sig-area"><div class="sig-line">Päivämäärä ja paikka</div><div class="sig-line">Rahastonhoitaja</div><div class="sig-line">Puheenjohtaja</div></div></body></html>`;
+  }
+
+  function handlePrintMonth(monthIndex) {
+    const html = buildMonthPdfHtml(monthIndex);
+    const win = window.open("", "_blank"); if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 400); }
+  }
+
+  function handleDownloadMonth(monthIndex) {
+    const html = buildMonthPdfHtml(monthIndex);
+    const blob = new Blob([html], { type: "application/pdf" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `GMCFI_Kassakirja_${MONTHS[monthIndex]}_${year}.pdf`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
+  }
+
+  function handleShareMonth(monthIndex) {
+    const html = buildMonthPdfHtml(monthIndex);
+    const eurA = (v) => "€ " + v.toLocaleString("fi-FI", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const mSummary = monthlySummary[monthIndex];
+    const mRows = transactions[monthIndex] || [];
+    const mIncome = mRows.reduce((s, r) => s + (parseFloat(r.income) || 0), 0);
+    const mExpense = mRows.reduce((s, r) => s + (parseFloat(r.expense) || 0), 0);
+    const blob = new Blob([html], { type: "text/html" });
+    const file = new File([blob], `GMCFI_Kassakirja_${MONTHS[monthIndex]}_${year}.html`, { type: "text/html" });
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ title: `GMCFI Kassakirja ${MONTHS[monthIndex]} ${year}`, text: `GMCFI - Kassakirja ${MONTHS[monthIndex]} ${year}`, files: [file] }).catch(() => {});
+    } else if (navigator.share) {
+      navigator.share({ title: `GMCFI Kassakirja ${MONTHS[monthIndex]} ${year}`, text: `GMCFI Kassakirja ${MONTHS[monthIndex]} ${year}\n\nTulot: ${eurA(mIncome)}\nMenot: ${eurA(mExpense)}\nSaldo: ${eurA(mSummary.closing)}` }).catch(() => {});
+    } else {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `GMCFI_Kassakirja_${MONTHS[monthIndex]}_${year}.html`; a.click(); URL.revokeObjectURL(a.href);
+      alert("Tiedosto ladattu. Voit jakaa sen sähköpostilla tai viestisovelluksella.");
+    }
+  }
+
+  const [showMonthPdfMenu, setShowMonthPdfMenu] = useState(false);
+
   const ms = monthlySummary[activeMonth];
   const monthRows = transactions[activeMonth] || [];
   const maxBar = Math.max(...monthlySummary.map(m => Math.max(m.income, m.expense)), 1);
@@ -293,6 +348,20 @@ export default function KassakirjaApp() {
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 8v5a1 1 0 001 1h6a1 1 0 001-1V8"/><path d="M8 1v8"/><path d="M5 4l3-3 3 3"/></svg>
                      Jaa PDF eteenpäin
                   </button>
+                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "6px 0", paddingTop: 6 }}>
+                    <div style={{ fontSize: 10, color: "#6b7394", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "2px 12px 6px" }}>Kuukauden PDF</div>
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6 }} onClick={() => { setShowPdfMenu(false); handlePrintMonth(activeMonth); }}>
+                      <IconSave /> Tallenna – {MONTHS[activeMonth]}
+                    </button>
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginTop: 2 }} onClick={() => { setShowPdfMenu(false); handleDownloadMonth(activeMonth); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 1v10"/><path d="M4 8l4 4 4-4"/><path d="M2 13h12"/></svg>
+                       Lataa – {MONTHS[activeMonth]}
+                    </button>
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginTop: 2 }} onClick={() => { setShowPdfMenu(false); handleShareMonth(activeMonth); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 8v5a1 1 0 001 1h6a1 1 0 001-1V8"/><path d="M8 1v8"/><path d="M5 4l3-3 3 3"/></svg>
+                       Jaa – {MONTHS[activeMonth]}
+                    </button>
+                  </div>
                 </div>
               </>)}
             </div>
