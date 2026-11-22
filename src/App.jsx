@@ -161,62 +161,92 @@ export default function KassakirjaApp() {
   const pdfEurOrDash = (v) => (Number(v) || 0) === 0 ? "-" : pdfEur(v);
   const pdfDate = (d) => d ? d.split("-").reverse().join(".") : "";
 
+  // PDF samalla ulkoasulla kuin kassakirja 1:ssä (A4 pysty, yhteenvetolaatikko, taulukko, allekirjoitukset).
   function buildPdf(monthIndex) {
-    const isMonth = monthIndex !== null && monthIndex !== undefined;
-    const rows = isMonth ? (transactions[monthIndex] || []) : Array.from({ length: 12 }, (_, m) => transactions[m] || []).flat();
-    const opening = isMonth ? monthlySummary[monthIndex].opening : openingBalance;
-    const inc = rows.reduce((s, r) => s + (parseFloat(r.income) || 0), 0);
-    const exp = rows.reduce((s, r) => s + (parseFloat(r.expense) || 0), 0);
-    const closing = isMonth ? monthlySummary[monthIndex].closing : currentBalance;
-    const period = isMonth ? `${MONTHS[monthIndex]} ${year}` : `Tammikuu – Joulukuu ${year}`;
-
-    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const isSummary = monthIndex === null || monthIndex === undefined;
+    const ms = isSummary ? null : monthlySummary[monthIndex];
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const W = doc.internal.pageSize.getWidth();
     const H = doc.internal.pageSize.getHeight();
+    const red = [107, 39, 55];
+    const period = isSummary ? `${year} – Vuosiyhteenveto` : `${MONTHS[monthIndex]} ${year}`;
     doc.setProperties({ title: `GMCFI Kassakirja ${period}`, author: "Grace Montagnard Alliance Church Finland" });
+
     let y = 12;
     try { doc.addImage(LOGO_SRC, "PNG", W / 2 - 8, y, 16, 16); y += 20; } catch (e) { y += 2; }
     doc.setTextColor(34); doc.setFont("helvetica", "bold"); doc.setFontSize(14);
     doc.text("Grace Montagnard Alliance Church Finland", W / 2, y, { align: "center" }); y += 5;
     doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(85);
     doc.text("Kulmakatu 8, 92100 Raahe", W / 2, y, { align: "center" }); y += 5.5;
-    doc.setFontSize(11);
-    doc.text(`Kassakirja ${period}`, W / 2, y, { align: "center" }); y += 4;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(34);
+    doc.text(`Kassakirja ${period}`, W / 2, y, { align: "center" }); y += 5;
 
-    let run = opening;
-    const body = [["", isMonth ? `Alkusaldo ${MONTHS[monthIndex]}` : `Siirto kassasta ${year - 1} vuodelta`, "", pdfEur(opening), "-", pdfEur(opening), "", ""]];
-    rows.forEach(r => {
-      const i = parseFloat(r.income) || 0, e = parseFloat(r.expense) || 0;
-      run += i - e;
-      body.push([pdfDate(r.date), r.description || "", String(r.receipt || ""), pdfEurOrDash(i), pdfEurOrDash(e), pdfEur(run), "", ""]);
-    });
-
+    const opening = isSummary ? openingBalance : ms.opening;
+    const inc = isSummary ? totalIncome : ms.income;
+    const exp = isSummary ? totalExpense : ms.expense;
+    const closing = isSummary ? currentBalance : ms.closing;
     autoTable(doc, {
-      startY: y,
-      margin: { left: 15, right: 15 },
-      head: [["pp.kk.vvvv", "Selite", "Tos", "Tulot", "Menot", "Saldo", "Rahastonhoitaja", "Puheenjohtaja"]],
-      body,
-      foot: [["", "Yhteensä", "", pdfEur(inc), pdfEur(exp), pdfEur(closing), "", ""]],
-      theme: "grid",
-      styles: { font: "helvetica", fontSize: 9, cellPadding: 1.8, lineColor: [212, 212, 212], lineWidth: 0.2, textColor: 34 },
-      headStyles: { fillColor: [107, 39, 55], textColor: 255, fontStyle: "bold", lineColor: [90, 31, 46] },
-      footStyles: { fillColor: [255, 255, 255], textColor: 34, fontStyle: "bold", lineColor: [107, 39, 55] },
-      alternateRowStyles: { fillColor: [250, 248, 248] },
-      columnStyles: { 0: { cellWidth: 24 }, 2: { cellWidth: 14 }, 3: { cellWidth: 26, halign: "right" }, 4: { cellWidth: 26, halign: "right" }, 5: { cellWidth: 28, halign: "right" }, 6: { cellWidth: 32 }, 7: { cellWidth: 32 } },
-      didParseCell: (data) => { if ((data.section === "head" || data.section === "foot") && data.column.index >= 3 && data.column.index <= 5) data.cell.styles.halign = "right"; },
-      showFoot: "lastPage",
+      startY: y, margin: { left: W - 15 - 72, right: 15 }, tableWidth: 72, theme: "grid",
+      body: [["Alkusaldo (€)", pdfEur(opening)], ["Tulot yht. (€)", pdfEur(inc)], ["Menot yht. (€)", pdfEurOrDash(exp)], ["Loppusaldo (€)", pdfEur(closing)]],
+      styles: { fontSize: 9, cellPadding: 1.4, lineColor: [192, 192, 192], lineWidth: 0.2, textColor: 34 },
+      columnStyles: { 0: { halign: "right", fillColor: [242, 242, 242], cellWidth: 36 }, 1: { halign: "right", cellWidth: 36 } },
+      didParseCell: (d) => { if (d.row.index === 3 && d.column.index === 1) d.cell.styles.fontStyle = "bold"; },
     });
+    y = doc.lastAutoTable.finalY + 6;
+
+    const common = {
+      startY: y, margin: { left: 15, right: 15 }, theme: "grid",
+      styles: { font: "helvetica", fontSize: 8.5, cellPadding: 1.6, lineColor: [212, 212, 212], lineWidth: 0.2, textColor: 34, overflow: "linebreak" },
+      headStyles: { fillColor: red, textColor: 255, fontStyle: "bold", lineColor: [90, 31, 46] },
+      footStyles: { fillColor: [245, 240, 240], textColor: 34, fontStyle: "bold", lineColor: red },
+      alternateRowStyles: { fillColor: [250, 248, 248] },
+      showFoot: "lastPage",
+    };
+
+    if (isSummary) {
+      const totalCount = monthlySummary.reduce((s, m) => s + m.count, 0);
+      autoTable(doc, {
+        ...common,
+        head: [["Kuukausi", "Alkusaldo (€)", "Tulot (€)", "Menot (€)", "Loppusaldo (€)", "Kirjauksia"]],
+        body: monthlySummary.map(m => [m.name, pdfEur(m.opening), pdfEurOrDash(m.income), pdfEurOrDash(m.expense), pdfEur(m.closing), m.count ? String(m.count) : "-"]),
+        foot: [["Yhteensä", pdfEur(openingBalance), pdfEur(totalIncome), pdfEur(totalExpense), pdfEur(currentBalance), String(totalCount)]],
+        columnStyles: { 1: { halign: "right" }, 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right", fontStyle: "bold" }, 5: { halign: "center" } },
+        didParseCell: (d) => { if (d.section !== "body") { if (d.column.index >= 1 && d.column.index <= 4) d.cell.styles.halign = "right"; if (d.column.index === 5) d.cell.styles.halign = "center"; } },
+      });
+    } else {
+      const rows = transactions[monthIndex] || [];
+      let run = ms.opening;
+      const body = rows.map(r => {
+        const i = parseFloat(r.income) || 0, e = parseFloat(r.expense) || 0;
+        run += i - e;
+        return [pdfDate(r.date), String(r.receipt || ""), r.description || "", pdfEurOrDash(i), pdfEurOrDash(e), pdfEur(run)];
+      });
+      autoTable(doc, {
+        ...common,
+        head: [["Päivämäärä", "Tosite", "Selite", "Tulot (€)", "Menot (€)", "Saldo (€)"]],
+        body: body.length ? body : [[{ content: "Ei kirjauksia", colSpan: 6, styles: { halign: "center", textColor: 150 } }]],
+        foot: [[{ content: "Yhteensä", colSpan: 3, styles: { halign: "right" } }, pdfEur(ms.income), pdfEurOrDash(ms.expense), pdfEur(ms.closing)]],
+        columnStyles: { 0: { cellWidth: 24 }, 1: { cellWidth: 16, halign: "center" }, 3: { cellWidth: 26, halign: "right" }, 4: { cellWidth: 26, halign: "right" }, 5: { cellWidth: 28, halign: "right" } },
+        didParseCell: (d) => { if (d.section === "head" && d.column.index >= 3) d.cell.styles.halign = "right"; if (d.section === "head" && d.column.index === 1) d.cell.styles.halign = "center"; if (d.section === "foot" && d.column.index >= 1) d.cell.styles.halign = "right"; },
+      });
+    }
 
     let sy = doc.lastAutoTable.finalY + 28;
-    if (sy > H - 12) { doc.addPage(); sy = 40; }
-    const gap = 20, lw = (W - 30 - 2 * gap) / 3;
-    ["Päivämäärä ja paikka", "Rahastonhoitaja", "Puheenjohtaja"].forEach((label, i) => {
+    if (sy > H - 20) { doc.addPage(); sy = 40; }
+    const labels = isSummary ? ["Päivämäärä ja paikka", "Rahastonhoitaja", "Puheenjohtaja"] : ["Päivämäärä ja paikka", "Rahastonhoitaja"];
+    const gap = 14, lw = (W - 30 - gap * (labels.length - 1)) / labels.length;
+    labels.forEach((label, i) => {
       const x = 15 + i * (lw + gap);
       doc.setDrawColor(51); doc.setLineWidth(0.3); doc.line(x, sy, x + lw, sy);
-      doc.setFontSize(9); doc.setTextColor(85); doc.text(label, x, sy + 4.5);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(85); doc.text(label, x, sy + 4.5);
     });
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) {
+      doc.setPage(i); doc.setFontSize(8); doc.setTextColor(153);
+      doc.text(`Grace Montagnard Alliance Church Finland – Kassakirja ${period}` + (pages > 1 ? `  ·  ${i}/${pages}` : ""), W / 2, H - 8, { align: "center" });
+    }
 
-    const filename = isMonth ? `GMCFI_Kassakirja_${MONTHS[monthIndex]}_${year}.pdf` : `GMCFI_Kassakirja_${year}.pdf`;
+    const filename = isSummary ? `GMCFI_Kassakirja_${year}_Yhteenveto.pdf` : `GMCFI_Kassakirja_${MONTHS[monthIndex]}_${year}.pdf`;
     return { doc, filename, period, inc, exp, closing };
   }
 
