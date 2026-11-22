@@ -312,43 +312,37 @@ export default function KassakirjaApp() {
             <button className={`btn ${view === "summary" ? "btn-primary" : "btn-ghost"}`} onClick={() => setView("summary")}>Yhteenveto</button>
             <button className={`btn ${view === "month" ? "btn-primary" : "btn-ghost"}`} onClick={() => setView("month")}>Kuukausi</button>
             <div style={{ position: "relative" }}>
-              <button className="btn btn-ghost" onClick={() => setShowPdfMenu(!showPdfMenu)}><IconPrint /> PDF <IconDown /></button>
+              <button className="btn btn-ghost" onClick={() => setShowPdfMenu(!showPdfMenu)} style={{ gap: 5 }}><IconPrint /> PDF <IconDown /></button>
               {showPdfMenu && (<>
                 <div style={{ position: "fixed", inset: 0, zIndex: 90 }} onClick={() => setShowPdfMenu(false)} />
-                <div style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 100, background: "#1e2440", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: 6, minWidth: 200, boxShadow: "0 12px 40px rgba(0,0,0,0.5)" }}>
-                  <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6 }} onClick={() => { setShowPdfMenu(false); handlePrint(); }}>
-                    <IconSave /> Tallenna PDF
-                  </button>
-                  <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginTop: 2 }} onClick={() => { setShowPdfMenu(false); handleDownloadPdf(); }}>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 1v10"/><path d="M4 8l4 4 4-4"/><path d="M2 13h12"/></svg>
-                     Lataa PDF
-                  </button>
-                  <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginTop: 2 }} onClick={() => { setShowPdfMenu(false); handleSharePdf(); }}>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 8v5a1 1 0 001 1h6a1 1 0 001-1V8"/><path d="M8 1v8"/><path d="M5 4l3-3 3 3"/></svg>
-                     Jaa PDF eteenpäin
-                  </button>
-                  <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginTop: 2 }} onClick={() => { setShowPdfMenu(false); handleEmailPdf(); }}>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M2 4l6 5 6-5"/></svg>
-                     Lähetä sähköpostiin
-                  </button>
-                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "6px 0", paddingTop: 6 }}>
-                    <div style={{ fontSize: 10, color: "#6b7394", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "2px 12px 6px" }}>Kuukauden PDF</div>
-                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6 }} onClick={() => { setShowPdfMenu(false); handlePrintMonth(activeMonth); }}>
-                      <IconSave /> Tallenna – {MONTHS[activeMonth]}
+                <div style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 100, background: "#1e2440", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: 6, minWidth: 230, boxShadow: "0 12px 40px rgba(0,0,0,0.5)" }}>
+                    <div style={{ padding: "6px 10px", fontSize: 10, color: "#6b7394", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.8 }}>Koko vuosi {year}</div>
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginBottom: 2 }} onClick={() => { setShowPdfMenu(false); handlePrint(); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5V1h8v4M4 11H2V6h12v5h-2"/><rect x="4" y="9" width="8" height="5" rx="0.5"/></svg> Avaa / Tulosta PDF
                     </button>
-                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginTop: 2 }} onClick={() => { setShowPdfMenu(false); handleDownloadMonth(activeMonth); }}>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 1v10"/><path d="M4 8l4 4 4-4"/><path d="M2 13h12"/></svg>
-                       Lataa – {MONTHS[activeMonth]}
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginBottom: 2 }} onClick={() => { setShowPdfMenu(false); handleDownloadPdf(); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 1v10"/><path d="M4 8l4 4 4-4"/><path d="M2 13h12"/></svg> Lataa PDF
                     </button>
-                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginTop: 2 }} onClick={() => { setShowPdfMenu(false); handleShareMonth(activeMonth); }}>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 8v5a1 1 0 001 1h6a1 1 0 001-1V8"/><path d="M8 1v8"/><path d="M5 4l3-3 3 3"/></svg>
-                       Jaa – {MONTHS[activeMonth]}
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginBottom: 2 }} onClick={() => { setShowPdfMenu(false); handleSharePdf(); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 8v5a1 1 0 001 1h6a1 1 0 001-1V8"/><path d="M8 1v8"/><path d="M5 4l3-3 3 3"/></svg> Jaa PDF
                     </button>
-                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginTop: 2 }} onClick={() => { setShowPdfMenu(false); handleEmailMonth(activeMonth); }}>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M2 4l6 5 6-5"/></svg>
-                       Sähköposti – {MONTHS[activeMonth]}
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginBottom: 2 }} onClick={() => { setShowPdfMenu(false); handleEmailPdf(); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M2 4l6 5 6-5"/></svg> Lähetä sähköpostiin
                     </button>
-                  </div>
+                  <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
+                    <div style={{ padding: "6px 10px", fontSize: 10, color: "#6b7394", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.8 }}>{MONTHS[activeMonth]} {year}</div>
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginBottom: 2 }} onClick={() => { setShowPdfMenu(false); handlePrintMonth(activeMonth); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5V1h8v4M4 11H2V6h12v5h-2"/><rect x="4" y="9" width="8" height="5" rx="0.5"/></svg> Avaa / Tulosta PDF
+                    </button>
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginBottom: 2 }} onClick={() => { setShowPdfMenu(false); handleDownloadMonth(activeMonth); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 1v10"/><path d="M4 8l4 4 4-4"/><path d="M2 13h12"/></svg> Lataa PDF
+                    </button>
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginBottom: 2 }} onClick={() => { setShowPdfMenu(false); handleShareMonth(activeMonth); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 8v5a1 1 0 001 1h6a1 1 0 001-1V8"/><path d="M8 1v8"/><path d="M5 4l3-3 3 3"/></svg> Jaa PDF
+                    </button>
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "flex-start", borderRadius: 6, marginBottom: 2 }} onClick={() => { setShowPdfMenu(false); handleEmailMonth(activeMonth); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M2 4l6 5 6-5"/></svg> Lähetä sähköpostiin
+                    </button>
                 </div>
               </>)}
             </div>
